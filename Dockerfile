@@ -6,7 +6,7 @@ ENV\
 	FD_VER=3.4.8
 RUN\
 	apt-get update &&\
-	apt-get install -y vim curl wget nodejs default-jdk lsof ntp &&\
+	apt-get install -y vim curl wget nodejs default-jdk monit lsof ntp &&\
 	apt-get update &&\
 	wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/$ES_VER/elasticsearch-$ES_VER.tar.gz &&\
 	tar xzvf elasticsearch-$ES_VER.tar.gz &&\
@@ -25,9 +25,10 @@ RUN\
 	apt-get clean &&\
 	touch start.sh &&\
 	chmod 755 start.sh &&\
-	echo "$!/bin/sh" >> start.sh &&\
-	echo "docker_elastic-kibana" >> start.sh &&\
+	echo "#!/bin/sh" >> start.sh &&\
+	echo "service td-agent start" >> start.sh &&\
 	echo "./es/bin/elasticsearch -Des.insecure.allow.root=true -d" >> start.sh &&\
-	echo "nohup ./kb/bin/kibana &"
+	echo "nohup ./kb/bin/kibana &" >> start.sh &&\
+	echo "monit -I" >> start.sh
 COPY td-agent.conf /etc/td-agent/td-agent.conf
 EXPOSE 5601 9200 9300 24224
